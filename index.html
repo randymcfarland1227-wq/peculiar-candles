@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Peculiar Candles</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🕯️</text></svg>">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-inner">
+    <div class="brand">
+      <h1>Peculiar Candles</h1>
+      <span class="tagline">recycled vessels, natural wax, a story in every jar</span>
+    </div>
+    <span class="date" id="todayLabel"></span>
+  </div>
+  <div class="wrap tabs-scroll">
+    <nav class="tabs">
+      <button data-view="build" class="active">🔨 Build</button>
+      <button data-view="log">📖 Log</button>
+      <button data-view="jars">🫙 Jars</button>
+      <button data-view="oils">🧴 Oils</button>
+      <button data-view="wicks">🧵 Wicks</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ===================== BUILD ===================== -->
+  <section id="build" class="view active">
+    <div class="section-head">
+      <h2 class="section-title">Build a Candle</h2>
+      <p class="section-intro">Pick a jar, dial in the scent, note the wick — the ratios below are a starting estimate, always weigh your actual pour.</p>
+    </div>
+
+    <div class="stat-tiles" id="dashTiles"></div>
+
+    <div class="panel" id="buildPanel">
+      <div class="field">
+        <label>Candle name <span class="optional">its story starts here</span></label>
+        <input type="text" id="bName" placeholder="e.g. Midnight Orchard">
+      </div>
+
+      <div class="field">
+        <label>Jar</label>
+        <select id="bJar"></select>
+      </div>
+
+      <div class="calc-panel" id="calcPanel">
+        <h4>Suggested ratio</h4>
+        <div class="calc-row">
+          <div class="calc-figure"><div class="num" id="calcWax">—</div><div class="lbl">oz wax</div></div>
+          <div class="calc-figure"><div class="num" id="calcOil">—</div><div class="lbl">oz fragrance oil</div></div>
+          <div class="calc-figure"><div class="num" id="calcJarSize">—</div><div class="lbl">jar capacity (oz)</div></div>
+        </div>
+        <p class="calc-note">Based on ~<span id="calcFactor"></span>oz wax per fl oz of jar volume, at the selected intensity's fragrance load. An estimate — weigh your pour.</p>
+      </div>
+
+      <div class="field">
+        <label>Scent intensity</label>
+        <div class="toggle-row" id="intensityRow"></div>
+      </div>
+
+      <div class="field">
+        <label>Fragrance oil(s) used</label>
+        <div id="oilRows"></div>
+        <button type="button" class="btn secondary" id="addOilRowBtn" style="margin-top:4px">+ Add another oil</button>
+        <p class="oil-total-line" id="oilTotalLine"></p>
+      </div>
+
+      <div class="field">
+        <label>Wick</label>
+        <div class="wick-type-row" id="wickTypeRow"></div>
+        <select id="bWick"></select>
+      </div>
+
+      <div class="field">
+        <label>This candle is for…</label>
+        <div class="purpose-row" id="purposeRow"></div>
+      </div>
+
+      <div class="field">
+        <label>Notes / story <span class="optional">optional</span></label>
+        <textarea id="bNotes" placeholder="Who it's for, the occasion, why this jar, what inspired the blend…"></textarea>
+      </div>
+
+      <button class="btn" id="pourBtn">🕯️ Pour this candle</button>
+      <div class="status-msg" id="buildStatus"></div>
+    </div>
+  </section>
+
+  <!-- ===================== LOG ===================== -->
+  <section id="log" class="view">
+    <div class="section-head">
+      <h2 class="section-title">Candle Log</h2>
+      <p class="section-intro">Every candle poured so far, with its story, scent, and status.</p>
+    </div>
+    <div class="chip-row" id="logFilterChips"></div>
+    <div id="logGrid" class="card-grid"></div>
+  </section>
+
+  <!-- ===================== JARS ===================== -->
+  <section id="jars" class="view">
+    <div class="section-head">
+      <h2 class="section-title">Jars &amp; Vessels</h2>
+      <p class="section-intro">Recycled candle basins, thrifted finds, whatever's been rescued from the cabinet — tracked by capacity and current status.</p>
+    </div>
+    <div class="chip-row" id="jarFilterChips"></div>
+    <div id="jarGrid" class="card-grid"></div>
+
+    <button class="btn add-toggle-btn" id="jarAddToggle">+ Add a jar</button>
+    <div class="panel" id="jarAddPanel" style="display:none">
+      <h3>Add a jar</h3>
+      <div class="field">
+        <label>Name / description</label>
+        <input type="text" id="jName" placeholder="e.g. Blue mason jar, recycled Bath &amp; Body Works tumbler">
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Capacity (fl oz)</label>
+          <input type="number" id="jSize" min="0" step="0.5" placeholder="e.g. 8">
+        </div>
+        <div class="field">
+          <label>Source</label>
+          <select id="jSource"></select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Notes <span class="optional">optional</span></label>
+        <input type="text" id="jNotes" placeholder="Where it came from, any chips or quirks…">
+      </div>
+      <button class="btn" id="addJarBtn">Add jar</button>
+      <div class="status-msg" id="jarStatus"></div>
+    </div>
+  </section>
+
+  <!-- ===================== OILS ===================== -->
+  <section id="oils" class="view">
+    <div class="section-head">
+      <h2 class="section-title">Fragrance Oils</h2>
+      <p class="section-intro">On-hand fragrance oils, tagged with scent notes so you can see a blend's character at a glance.</p>
+    </div>
+    <div class="note-legend" id="noteLegend"></div>
+    <div id="oilGrid" class="card-grid"></div>
+
+    <button class="btn add-toggle-btn" id="oilAddToggle">+ Add an oil</button>
+    <div class="panel" id="oilAddPanel" style="display:none">
+      <h3>Add a fragrance oil</h3>
+      <div class="field-row">
+        <div class="field">
+          <label>Name</label>
+          <input type="text" id="oName" placeholder="e.g. Lavender Fields">
+        </div>
+        <div class="field">
+          <label>Amount on hand (oz)</label>
+          <input type="number" id="oAmount" min="0" step="0.1" placeholder="e.g. 4">
+        </div>
+      </div>
+      <div class="field">
+        <label>Scent notes <span class="optional">tag with a family for its color</span></label>
+        <div id="oilNoteRows"></div>
+        <button type="button" class="btn secondary" id="addOilNoteRowBtn" style="margin-top:4px">+ Add a note</button>
+      </div>
+      <div class="field">
+        <label>Supplier <span class="optional">optional</span></label>
+        <input type="text" id="oSupplier" placeholder="e.g. Nature's Garden">
+      </div>
+      <button class="btn" id="addOilBtn">Add oil</button>
+      <div class="status-msg" id="oilStatus"></div>
+    </div>
+  </section>
+
+  <!-- ===================== WICKS ===================== -->
+  <section id="wicks" class="view">
+    <div class="section-head">
+      <h2 class="section-title">Wicks</h2>
+      <p class="section-intro">Cotton and wood wicks on hand, by size.</p>
+    </div>
+    <div id="wickGrid" class="card-grid"></div>
+
+    <button class="btn add-toggle-btn" id="wickAddToggle">+ Add wicks</button>
+    <div class="panel" id="wickAddPanel" style="display:none">
+      <h3>Add wicks</h3>
+      <div class="field">
+        <label>Type</label>
+        <div class="wick-type-row" id="wAddTypeRow"></div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Size</label>
+          <input type="text" id="wSize" placeholder="e.g. CD-8, or 6x18 wood wick">
+        </div>
+        <div class="field">
+          <label>Quantity on hand</label>
+          <input type="number" id="wQty" min="0" step="1" placeholder="e.g. 20">
+        </div>
+      </div>
+      <div class="field">
+        <label>Notes <span class="optional">optional</span></label>
+        <input type="text" id="wNotes" placeholder="Best jar diameter, where they're from…">
+      </div>
+      <button class="btn" id="addWickBtn">Add wicks</button>
+      <div class="status-msg" id="wickStatus"></div>
+    </div>
+  </section>
+
+</main>
+
+<script src="js/config.js"></script>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

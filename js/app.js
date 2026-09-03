@@ -78,14 +78,14 @@ function renderDashboard() {
   const lowOils = state.oils.filter(o => o.amountOz <= LOW_STOCK_OIL_OZ).length;
   const curing = state.candles.filter(c => c.status === 'curing').length;
   const tiles = [
-    { num: availJars, lbl: 'Jars available' },
-    { num: inUseJars, lbl: 'Jars in use' },
-    { num: lowOils, lbl: 'Oils low on stock', warn: lowOils > 0 },
-    { num: curing, lbl: 'Candles curing' },
-    { num: state.candles.length, lbl: 'Total poured' },
+    { num: availJars, lbl: 'Jars available', accent: 'var(--sage)' },
+    { num: inUseJars, lbl: 'Jars in use', accent: 'var(--terracotta)' },
+    { num: lowOils, lbl: 'Oils low on stock', warn: lowOils > 0, accent: 'var(--danger)' },
+    { num: curing, lbl: 'Candles curing', accent: 'var(--gold)' },
+    { num: state.candles.length, lbl: 'Total poured', accent: 'var(--sage-dark)' },
   ];
   document.getElementById('dashTiles').innerHTML = tiles.map(t => `
-    <div class="stat-tile${t.warn ? ' warn' : ''}"><div class="num">${t.num}</div><div class="lbl">${t.lbl}</div></div>
+    <div class="stat-tile${t.warn ? ' warn' : ''}" style="--tile-accent:${t.accent}"><div class="num">${t.num}</div><div class="lbl">${t.lbl}</div></div>
   `).join('');
 }
 
@@ -659,9 +659,10 @@ document.getElementById('todayLabel').textContent = new Date().toLocaleDateStrin
 // Init
 // ---------------------------------------------------------------------
 state.jars = localGet('peculiarCandles.jars', []);
-state.oils = localGet('peculiarCandles.oils', []);
+state.oils = localGet('peculiarCandles.oils', SEED_OILS.map(o => ({ ...o, dateAdded: todayStr() })));
 state.wicks = localGet('peculiarCandles.wicks', []);
 state.candles = localGet('peculiarCandles.candles', []);
+if (!localStorage.getItem('peculiarCandles.oils')) saveOils();
 
 document.getElementById('jSource').innerHTML = JAR_SOURCES.map(s => `<option>${escapeHtml(s)}</option>`).join('');
 

@@ -14,6 +14,7 @@ const state = {
   buildPurpose: 'personal',
   blendMode: 'single',
   selectedRecipeId: '',
+  openRecipeGroup: '',
   wickAddType: 'cotton',
   oilRows: [{ oilId: '', amt: '' }],
   oilNoteRows: [{ text: '', family: 'woody' }],
@@ -419,9 +420,45 @@ function updateBlendModeVisibility() {
   document.getElementById('recipePickerField').style.display = state.blendMode === 'recipe' ? '' : 'none';
 }
 
-function populateRecipeSelect() {
-  const sel = document.getElementById('bRecipe');
-  sel.innerHTML = '<option value="">Choose a blend…</option>' + RECIPES.map(r => `<option value="${r.id}"${r.id === state.selectedRecipeId ? ' selected' : ''}>${r.icon} ${escapeHtml(r.name)}</option>`).join('');
+// Groups render as a one-open-at-a-time accordion — click a group's header
+// (e.g. "🍂 Fall") to expand its recipes, click a recipe button to select it.
+function renderRecipeGroups() {
+  const container = document.getElementById('recipeGroups');
+  container.innerHTML = RECIPE_GROUPS.map(g => {
+    const recipesInGroup = RECIPES.filter(r => r.group === g.id);
+    const open = state.openRecipeGroup === g.id;
+    return `
+      <div class="recipe-group${open ? ' open' : ''}">
+        <button type="button" class="recipe-group-head" data-group="${g.id}">
+          <span class="rg-icon">${g.icon}</span>
+          <span class="rg-label">${escapeHtml(g.label)}</span>
+          <span class="rg-count">${recipesInGroup.length}</span>
+          <span class="rg-chevron">⌄</span>
+        </button>
+        <div class="recipe-group-body">
+          ${recipesInGroup.map(r => `
+            <button type="button" class="recipe-pick-btn${state.selectedRecipeId === r.id ? ' active' : ''}" data-id="${r.id}">${r.icon} ${escapeHtml(r.name)}</button>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  container.querySelectorAll('.recipe-group-head').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.group;
+      state.openRecipeGroup = state.openRecipeGroup === id ? '' : id;
+      renderRecipeGroups();
+    });
+  });
+  container.querySelectorAll('.recipe-pick-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.selectedRecipeId = btn.dataset.id;
+      renderRecipeGroups();
+      renderRecipeDetail();
+      applyRecipe(state.selectedRecipeId);
+    });
+  });
 }
 
 function renderRecipeDetail() {
@@ -747,13 +784,8 @@ renderIntensityRow();
 renderPurposeRow();
 renderBlendModeRow();
 updateBlendModeVisibility();
-populateRecipeSelect();
+renderRecipeGroups();
 renderRecipeDetail();
-document.getElementById('bRecipe').addEventListener('change', e => {
-  state.selectedRecipeId = e.target.value;
-  renderRecipeDetail();
-  if (state.selectedRecipeId) applyRecipe(state.selectedRecipeId);
-});
 renderOilRows();
 populateBuildJarSelect();
 populateBuildWickOptions();

@@ -171,8 +171,13 @@ const SEED_OILS = [
 // Named blends — a "recipe" is parts by ratio (not fixed oz), scaled at build time
 // to whatever total fragrance-oil amount the calculator suggests for the chosen jar
 // + intensity. `oil` values must match an oil's `name` in SEED_OILS (case-insensitive)
-// for the Build tab to auto-resolve them to that oil's inventory row.
-const RECIPES = [
+// for the Build tab to auto-resolve them to that oil's inventory row. `parts` values
+// can be fractional (e.g. 1.5) — only the ratio between them matters.
+//
+// Recipes are organized into RECIPE_GROUPS (shown as an accordion on the Build tab —
+// click a group to expand its recipes). SIGNATURE_RECIPES/FALL_RECIPES are combined
+// into RECIPES with their group id attached at the bottom of this section.
+const SIGNATURE_RECIPES = [
   { id: 'after-the-rain', icon: '🌲', name: 'After the Rain', expect: 'Wet green forest, cool air, earthy underneath', parts: [
     { oil: 'Bamboo', parts: 3 }, { oil: 'Forest Pine', parts: 2 }, { oil: 'Vetiver', parts: 1 }, { oil: 'Eucalyptus', parts: 1 },
   ] },
@@ -245,6 +250,79 @@ const RECIPES = [
   { id: 'strange-woods', icon: '🌲', name: 'Strange Woods', expect: 'Foresty at first, then this unexpected dark floral underneath', parts: [
     { oil: 'Forest Pine', parts: 3 }, { oil: 'Velvet Woods', parts: 2 }, { oil: 'Rose', parts: 1 }, { oil: 'Vetiver', parts: 1 },
   ] },
+];
+
+const FALL_RECIPES = [
+  { id: 'october-night', icon: '🍂', name: 'October Night', expect: 'Cold evening, fallen leaves, dark woods', parts: [
+    { oil: 'Fall Leaf', parts: 3 }, { oil: 'Amberfire Wood', parts: 2 }, { oil: 'Cedar', parts: 2 }, { oil: 'Vetiver', parts: 1 }, { oil: 'Bergamot Breeze', parts: 1 },
+  ] },
+  { id: 'apple-picking', icon: '🍂', name: 'Apple Picking', expect: 'Fresh apple orchard, leaves, tree bark', parts: [
+    { oil: 'Apple Cedar', parts: 4 }, { oil: 'Fall Leaf', parts: 2 }, { oil: 'Sweet Orange', parts: 1 }, { oil: 'Cedar', parts: 1 },
+  ] },
+  { id: 'pumpkin-chai', icon: '🍂', name: 'Pumpkin Chai', expect: 'Creamy, spicy, cozy gourmand', parts: [
+    { oil: 'Pumpkin', parts: 4 }, { oil: 'Vanilla', parts: 2 }, { oil: 'Harvest Spice', parts: 1.5 }, { oil: 'Cinnamon', parts: 0.5 },
+  ] },
+  { id: 'bonfire-hoodie', icon: '🍂', name: 'Bonfire Hoodie', expect: 'Smoke clinging to a hoodie after a bonfire', parts: [
+    { oil: 'Amberfire Wood', parts: 3 }, { oil: 'Creamy Woods & Sweet Musk', parts: 2 }, { oil: 'Cedar', parts: 2 }, { oil: 'Fall Leaf', parts: 1 },
+  ] },
+  { id: 'haunted-woods', icon: '🍂', name: 'Haunted Woods', expect: 'Dark forest floor, smoke, damp earth', parts: [
+    { oil: 'Forest Pine', parts: 3 }, { oil: 'Fall Leaf', parts: 2 }, { oil: 'Vetiver', parts: 2 }, { oil: 'Palo Santo', parts: 1 }, { oil: 'Amberfire Wood', parts: 1 },
+  ] },
+  { id: 'apple-cider', icon: '🍂', name: 'Apple Cider', expect: 'Hot mulled cider', parts: [
+    { oil: 'Apple Cedar', parts: 4 }, { oil: 'Sweet Orange', parts: 2 }, { oil: 'Harvest Spice', parts: 1 }, { oil: 'Cinnamon', parts: 0.5 }, { oil: 'Vanilla', parts: 0.5 },
+  ] },
+  { id: 'autumn-morning', icon: '🍂', name: 'Autumn Morning', expect: 'Crisp sheets, open window, cool fall air', parts: [
+    { oil: 'Fresh Sheets', parts: 3 }, { oil: 'Fall Leaf', parts: 2 }, { oil: 'Cedar', parts: 2 }, { oil: 'Bergamot Breeze', parts: 1 },
+  ] },
+  { id: 'pumpkin-woods', icon: '🍂', name: 'Pumpkin Woods', expect: 'Warm pumpkin surrounded by dry woods', parts: [
+    { oil: 'Pumpkin', parts: 3 }, { oil: 'Cedar', parts: 2 }, { oil: 'Sandalwood', parts: 2 }, { oil: 'Harvest Spice', parts: 1 }, { oil: 'Vanilla', parts: 1 },
+  ] },
+  { id: 'witchs-cottage', icon: '🍂', name: "Witch's Cottage", expect: 'Herbs, old wood, dried leaves, faint incense', parts: [
+    { oil: 'Palo Santo', parts: 3 }, { oil: 'Fall Leaf', parts: 2 }, { oil: 'Lavender', parts: 2 }, { oil: 'Cedar', parts: 1 }, { oil: 'Harvest Spice', parts: 1 },
+  ] },
+  { id: 'sweater-weather', icon: '🍂', name: 'Sweater Weather', expect: 'Clean sweater, cool air, warm skin', parts: [
+    { oil: 'Creamy Woods & Sweet Musk', parts: 3 }, { oil: 'Fresh Sheets', parts: 2 }, { oil: 'Sandalwood', parts: 2 }, { oil: 'Bergamot Breeze', parts: 1 }, { oil: 'Fall Leaf', parts: 1 },
+  ] },
+  { id: 'orchard-after-dark', icon: '🍂', name: 'Orchard After Dark', expect: 'Apple orchard at night—dark, woody, not sugary', parts: [
+    { oil: 'Apple Cedar', parts: 3 }, { oil: 'Vetiver', parts: 2 }, { oil: 'Cedar', parts: 2 }, { oil: 'Amberfire Wood', parts: 1 }, { oil: 'Bergamot Breeze', parts: 1 },
+  ] },
+  { id: 'thanksgiving-kitchen', icon: '🍂', name: 'Thanksgiving Kitchen', expect: 'Full-on warm baked fall goodness', parts: [
+    { oil: 'Pumpkin', parts: 3 }, { oil: 'Vanilla', parts: 2 }, { oil: 'Apple Cedar', parts: 2 }, { oil: 'Harvest Spice', parts: 1 }, { oil: 'Cinnamon', parts: 0.5 },
+  ] },
+  { id: 'november-rain', icon: '🍂', name: 'November Rain', expect: 'Wet leaves, damp earth and cold air', parts: [
+    { oil: 'Bamboo', parts: 3 }, { oil: 'Fall Leaf', parts: 2 }, { oil: 'Vetiver', parts: 2 }, { oil: 'Cedar', parts: 1 }, { oil: 'Eucalyptus', parts: 1 },
+  ] },
+  { id: 'cabin-weekend', icon: '🍂', name: 'Cabin Weekend', expect: 'Wooden cabin, pine outside, warm interior', parts: [
+    { oil: 'Cedar', parts: 3 }, { oil: 'Forest Pine', parts: 2 }, { oil: 'Vanilla', parts: 2 }, { oil: 'Amberfire Wood', parts: 1 }, { oil: 'Sandalwood', parts: 1 },
+  ] },
+  { id: 'cider-and-smoke', icon: '🍂', name: 'Cider & Smoke', expect: 'Cider beside a fire', parts: [
+    { oil: 'Apple Cedar', parts: 3 }, { oil: 'Amberfire Wood', parts: 2 }, { oil: 'Sweet Orange', parts: 1 }, { oil: 'Cinnamon', parts: 1 }, { oil: 'Cedar', parts: 1 },
+  ] },
+  { id: 'harvest-moon', icon: '🍂', name: 'Harvest Moon', expect: 'Musky, mysterious, herbal autumn night', parts: [
+    { oil: 'Fall Leaf', parts: 3 }, { oil: 'Creamy Woods & Sweet Musk', parts: 2 }, { oil: 'Amberfire Wood', parts: 2 }, { oil: 'Lavender', parts: 1 }, { oil: 'Vetiver', parts: 1 },
+  ] },
+  { id: 'pumpkin-bonfire', icon: '🍂', name: 'Pumpkin Bonfire', expect: 'Sweet pumpkin transitioning into smoke', parts: [
+    { oil: 'Pumpkin', parts: 3 }, { oil: 'Amberfire Wood', parts: 2 }, { oil: 'Palo Santo', parts: 1 }, { oil: 'Vanilla', parts: 1 }, { oil: 'Harvest Spice', parts: 1 },
+  ] },
+  { id: 'october-sun', icon: '🍂', name: 'October Sun', expect: 'Bright golden fall afternoon', parts: [
+    { oil: 'Sweet Orange', parts: 3 }, { oil: 'Apple Cedar', parts: 2 }, { oil: 'Fall Leaf', parts: 2 }, { oil: 'Bergamot Breeze', parts: 1 }, { oil: 'Cedar', parts: 1 },
+  ] },
+  { id: 'old-farmhouse', icon: '🍂', name: 'Old Farmhouse', expect: 'Old dry wood, dusty warmth, faint baking spices', parts: [
+    { oil: 'Cedar', parts: 3 }, { oil: 'Vanilla', parts: 2 }, { oil: 'Fall Leaf', parts: 2 }, { oil: 'Vetiver', parts: 1 }, { oil: 'Cinnamon', parts: 1 },
+  ] },
+  { id: 'midnight-in-october', icon: '🍂', name: 'Midnight in October', expect: "MidSummer's Night's autumn cousin—dark, masculine, musky and woody", parts: [
+    { oil: 'Creamy Woods & Sweet Musk', parts: 3 }, { oil: 'Fall Leaf', parts: 2 }, { oil: 'Teakwood', parts: 2 }, { oil: 'Vetiver', parts: 1 }, { oil: 'Amberfire Wood', parts: 1 }, { oil: 'Bergamot Breeze', parts: 0.5 },
+  ] },
+];
+
+const RECIPE_GROUPS = [
+  { id: 'signature', icon: '✨', label: 'Signature Blends' },
+  { id: 'fall', icon: '🍂', label: 'Fall' },
+];
+
+const RECIPES = [
+  ...SIGNATURE_RECIPES.map(r => ({ ...r, group: 'signature' })),
+  ...FALL_RECIPES.map(r => ({ ...r, group: 'fall' })),
 ];
 
 // Starting jar/vessel inventory — same loads-into-localStorage-once pattern as

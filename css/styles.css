@@ -656,6 +656,75 @@ main { padding-top: 26px; }
 .calc-figure .lbl { font-size: 0.73rem; color: var(--text-muted); margin-top: 3px; font-weight: 600; }
 .calc-note { font-size: 0.75rem; color: var(--text-faint); margin: 12px 0 0; line-height: 1.5; }
 
+.recipe-group {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  margin-bottom: 8px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.recipe-group-head {
+  width: 100%;
+  appearance: none;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  cursor: pointer;
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  font-size: 0.83rem;
+  color: var(--text);
+  text-align: left;
+  transition: background 0.15s;
+}
+.recipe-group-head:hover { background: var(--sage-tint); }
+.recipe-group.open .recipe-group-head { background: var(--sage-tint); }
+.recipe-group-head .rg-icon { font-size: 1rem; }
+.recipe-group-head .rg-count {
+  margin-left: auto;
+  font-family: 'EB Garamond', serif;
+  font-size: 0.78rem;
+  color: var(--text-faint);
+  font-weight: 500;
+}
+.recipe-group-head .rg-chevron {
+  color: var(--text-faint);
+  font-size: 0.85rem;
+  transition: transform 0.2s;
+}
+.recipe-group.open .recipe-group-head .rg-chevron { transform: rotate(180deg); }
+.recipe-group-body {
+  display: none;
+  flex-wrap: wrap;
+  gap: 7px;
+  padding: 2px 14px 13px;
+}
+.recipe-group.open .recipe-group-body { display: flex; }
+.recipe-pick-btn {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-muted);
+  font-family: 'EB Garamond', serif;
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 7px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s, box-shadow 0.15s;
+}
+.recipe-pick-btn:hover:not(.active) { border-color: var(--terracotta); }
+.recipe-pick-btn.active {
+  background: linear-gradient(150deg, var(--terracotta), var(--terracotta-dark));
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 2px 8px -2px color-mix(in srgb, var(--terracotta-dark) 55%, transparent);
+}
+
 .recipe-expect {
   font-style: italic;
   color: var(--text-muted);

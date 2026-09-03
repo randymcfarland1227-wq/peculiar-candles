@@ -12,6 +12,8 @@ const state = {
   buildIntensity: 'medium',
   buildWickType: 'cotton',
   buildPurpose: 'personal',
+  blendMode: 'single',
+  selectedRecipeId: '',
   wickAddType: 'cotton',
   oilRows: [{ oilId: '', amt: '' }],
   oilNoteRows: [{ text: '', family: 'woody' }],
@@ -390,6 +392,65 @@ function selectBuildWickType(id) {
   populateBuildWickOptions();
 }
 
+// ---------------------------------------------------------------------
+// Blend type — a single scent (or hand-picked custom blend) vs a named
+// recipe, whose ratio-by-parts gets scaled to whatever total fragrance
+// oz the calculator suggests for the current jar + intensity.
+// ---------------------------------------------------------------------
+function renderBlendModeRow() {
+  const row = document.getElementById('blendModeRow');
+  row.innerHTML = `
+    <button type="button" data-mode="single" class="${state.blendMode === 'single' ? 'active' : ''}">Single Scent</button>
+    <button type="button" data-mode="recipe" class="${state.blendMode === 'recipe' ? 'active' : ''}">Recipe Blend</button>
+  `;
+  row.querySelectorAll('button').forEach(btn => btn.addEventListener('click', () => {
+    state.blendMode = btn.dataset.mode;
+    renderBlendModeRow();
+    updateBlendModeVisibility();
+    if (state.blendMode === 'recipe' && state.selectedRecipeId) applyRecipe(state.selectedRecipeId);
+  }));
+}
+
+function updateBlendModeVisibility() {
+  document.getElementById('recipePickerField').style.display = state.blendMode === 'recipe' ? '' : 'none';
+}
+
+function populateRecipeSelect() {
+  const sel = document.getElementById('bRecipe');
+  sel.innerHTML = '<option value="">Choose a blend…</option>' + RECIPES.map(r => `<option value="${r.id}"${r.id === state.selectedRecipeId ? ' selected' : ''}>${r.icon} ${escapeHtml(r.name)}</option>`).join('');
+}
+
+function renderRecipeDetail() {
+  const box = document.getElementById('recipeDetail');
+  const recipe = RECIPES.find(r => r.id === state.selectedRecipeId);
+  if (!recipe) { box.innerHTML = ''; return; }
+  const missing = recipe.parts.filter(p => !state.oils.some(o => o.name.toLowerCase() === p.oil.toLowerCase()));
+  box.innerHTML = `
+    <p class="calc-note recipe-expect">"${escapeHtml(recipe.expect)}"</p>
+    <div class="recipe-parts">${recipe.parts.map(p => `<span class="recipe-part-chip">${p.parts}× ${escapeHtml(p.oil)}</span>`).join('')}</div>
+    ${missing.length ? `<p class="status-msg error">Not in your inventory yet: ${missing.map(m => escapeHtml(m.oil)).join(', ')} — add ${missing.length === 1 ? 'it' : 'them'} to the Oils tab first, or that part of the blend will be skipped.</p>` : ''}
+  `;
+}
+
+function applyRecipe(recipeId) {
+  const recipe = RECIPES.find(r => r.id === recipeId);
+  if (!recipe) return;
+  const r = suggestedRatio();
+  const targetOz = r ? r.oilOz : 0;
+  const totalParts = recipe.parts.reduce((s, p) => s + p.parts, 0);
+  state.oilRows = recipe.parts.map(p => {
+    const oil = state.oils.find(o => o.name.toLowerCase() === p.oil.toLowerCase());
+    const amt = totalParts ? Math.round(targetOz * (p.parts / totalParts) * 100) / 100 : 0;
+    return { oilId: oil ? oil.id : '', amt: amt || '' };
+  });
+  renderOilRows();
+
+  const nameInput = document.getElementById('bName');
+  if (!nameInput.value.trim()) nameInput.value = recipe.name;
+  const notesInput = document.getElementById('bNotes');
+  if (!notesInput.value.trim()) notesInput.value = recipe.expect;
+}
+
 function selectedJar() { return state.jars.find(j => j.id === document.getElementById('bJar').value); }
 function currentIntensity() { return INTENSITY_LEVELS.find(l => l.id === state.buildIntensity) || INTENSITY_LEVELS[1]; }
 
@@ -407,6 +468,7 @@ function updateCalc() {
   document.getElementById('calcOil').textContent = r ? r.oilOz.toFixed(2) : '—';
   document.getElementById('calcJarSize').textContent = r ? r.jar.sizeOz : '—';
   document.getElementById('calcFactor').textContent = WAX_YIELD_FACTOR;
+  if (state.blendMode === 'recipe' && state.selectedRecipeId) applyRecipe(state.selectedRecipeId);
   updateOilTotalLine();
 }
 
@@ -502,6 +564,7 @@ function pourCandle() {
   wick.qty -= 1;
 
   const r = suggestedRatio();
+  const recipe = state.blendMode === 'recipe' ? RECIPES.find(rc => rc.id === state.selectedRecipeId) : null;
   const candle = {
     id: uid('candle'),
     name,
@@ -511,6 +574,8 @@ function pourCandle() {
     waxOz: r ? r.waxOz : null,
     intensity: state.buildIntensity,
     oils: oilsUsed,
+    recipeIcon: recipe ? recipe.icon : '',
+    recipeName: recipe ? recipe.name : '',
     wickType: state.buildWickType,
     wickId: wick.id,
     wickSize: wick.size,
@@ -534,9 +599,9 @@ function pourCandle() {
 
   renderIntensityRow();
   renderPurposeRow();
-  populateBuildJarSelect();
+  populateBuildJarSelect(); // reapplies the recipe (via updateCalc) if one's selected
   populateBuildWickOptions();
-  renderOilRows();
+  if (state.blendMode !== 'recipe') renderOilRows();
   renderJars(); renderJarFilterChips();
   renderOils();
   renderWicks();
@@ -562,7 +627,7 @@ function logCardHTML(c) {
       <div class="card-top">
         <div>
           <h3>${escapeHtml(c.name)}</h3>
-          <div class="sub">${escapeHtml(c.jarName)} · ${c.jarSizeOz} oz · ${c.dateMade}</div>
+          <div class="sub">${escapeHtml(c.jarName)} · ${c.jarSizeOz} oz · ${c.dateMade}${c.recipeName ? ` · ${c.recipeIcon} ${escapeHtml(c.recipeName)} recipe` : ''}</div>
         </div>
         <select class="mini-select candle-status-select" data-id="${c.id}" style="--badge:var(--c-${c.status})">
           ${CANDLE_STATUSES.map(s => `<option value="${s.id}"${s.id === c.status ? ' selected' : ''}>${s.label}</option>`).join('')}
@@ -675,6 +740,15 @@ renderWickTypeToggle('wAddTypeRow', state.wickAddType, selectWickAddType);
 renderWickTypeToggle('wickTypeRow', state.buildWickType, selectBuildWickType);
 renderIntensityRow();
 renderPurposeRow();
+renderBlendModeRow();
+updateBlendModeVisibility();
+populateRecipeSelect();
+renderRecipeDetail();
+document.getElementById('bRecipe').addEventListener('change', e => {
+  state.selectedRecipeId = e.target.value;
+  renderRecipeDetail();
+  if (state.selectedRecipeId) applyRecipe(state.selectedRecipeId);
+});
 renderOilRows();
 populateBuildJarSelect();
 populateBuildWickOptions();

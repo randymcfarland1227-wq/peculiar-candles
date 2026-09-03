@@ -167,3 +167,82 @@ const SEED_OILS = [
     { text: 'Floral', family: 'floral' }, { text: 'Herbal', family: 'herbal' }, { text: 'Aromatic', family: 'herbal' }, { text: 'Fresh', family: 'fresh' }, { text: 'Soft', family: 'soft' },
   ] },
 ];
+
+// Named blends — a "recipe" is parts by ratio (not fixed oz), scaled at build time
+// to whatever total fragrance-oil amount the calculator suggests for the chosen jar
+// + intensity. `oil` values must match an oil's `name` in SEED_OILS (case-insensitive)
+// for the Build tab to auto-resolve them to that oil's inventory row.
+const RECIPES = [
+  { id: 'after-the-rain', icon: '🌲', name: 'After the Rain', expect: 'Wet green forest, cool air, earthy underneath', parts: [
+    { oil: 'Bamboo', parts: 3 }, { oil: 'Forest Pine', parts: 2 }, { oil: 'Vetiver', parts: 1 }, { oil: 'Eucalyptus', parts: 1 },
+  ] },
+  { id: 'old-library', icon: '🪵', name: 'Old Library', expect: 'Dry old wood, warmth, slightly dusty/cozy', parts: [
+    { oil: 'Cedar', parts: 3 }, { oil: 'Vanilla', parts: 2 }, { oil: 'Teakwood', parts: 2 }, { oil: 'Vetiver', parts: 1 },
+  ] },
+  { id: 'midnight-garden', icon: '🌙', name: 'Midnight Garden', expect: 'Dark floral rather than traditionally "pretty" floral', parts: [
+    { oil: 'Lavender Sandalwood', parts: 3 }, { oil: 'Blossom Water', parts: 2 }, { oil: 'Vetiver', parts: 1 }, { oil: 'Rose', parts: 1 },
+  ] },
+  { id: 'cabin-at-dusk', icon: '🔥', name: 'Cabin at Dusk', expect: 'Fireplace, timber, pine air, subtle sweetness', parts: [
+    { oil: 'Amberfire Wood', parts: 3 }, { oil: 'Forest Pine', parts: 2 }, { oil: 'Cedar', parts: 1 }, { oil: 'Vanilla', parts: 1 },
+  ] },
+  { id: 'apple-orchard', icon: '🍎', name: 'Apple Orchard', expect: 'More actual autumn orchard than apple-pie candle', parts: [
+    { oil: 'Apple Cedar', parts: 3 }, { oil: 'Fall Leaf', parts: 2 }, { oil: 'Cinnamon', parts: 1 }, { oil: 'Cedar', parts: 1 },
+  ] },
+  { id: 'sunday-morning', icon: '🛏️', name: 'Sunday Morning', expect: 'Clean linen, open windows, soft floral air', parts: [
+    { oil: 'Fresh Sheets', parts: 4 }, { oil: 'Blossom Water', parts: 2 }, { oil: 'Lavender', parts: 1 },
+  ] },
+  { id: 'coastal-woods', icon: '🌊', name: 'Coastal Woods', expect: 'Breezy coastal vegetation + weathered wood', parts: [
+    { oil: 'Beach Sage', parts: 3 }, { oil: 'Bergamot Breeze', parts: 2 }, { oil: 'Cedar', parts: 2 }, { oil: 'Eucalyptus', parts: 1 },
+  ] },
+  { id: 'skin-and-wood', icon: '🧡', name: 'Skin & Wood', expect: 'Warm skin, creamy wood, subtle perfume quality', parts: [
+    { oil: 'Creamy Woods & Sweet Musk', parts: 4 }, { oil: 'Sandalwood', parts: 2 }, { oil: 'Vanilla', parts: 1 }, { oil: 'Bergamot Breeze', parts: 1 },
+  ] },
+  { id: 'orange-grove', icon: '🍊', name: 'Orange Grove', expect: 'Bright citrus peel, leaves and branches instead of orange candy', parts: [
+    { oil: 'Sweet Orange', parts: 4 }, { oil: 'Bergamot Breeze', parts: 2 }, { oil: 'Cedar', parts: 1 }, { oil: 'Tea Tree', parts: 1 },
+  ] },
+  { id: 'rainy-cabin', icon: '🌧️', name: 'Rainy Cabin', expect: 'Damp air, clean interior, earthy wood', parts: [
+    { oil: 'Bamboo', parts: 3 }, { oil: 'Cedar', parts: 2 }, { oil: 'Fresh Sheets', parts: 2 }, { oil: 'Vetiver', parts: 1 },
+  ] },
+  { id: 'october-6pm', icon: '🍂', name: 'October 6 PM', expect: 'Leaves, chilly evening, distant warmth', parts: [
+    { oil: 'Fall Leaf', parts: 3 }, { oil: 'Amberfire Wood', parts: 2 }, { oil: 'Apple Cedar', parts: 1 }, { oil: 'Cinnamon', parts: 1 },
+  ] },
+  { id: 'incense-shop', icon: '🕯️', name: 'Incense Shop', expect: 'Resinous, meditative, creamy and slightly smoky', parts: [
+    { oil: 'Palo Santo', parts: 3 }, { oil: 'Sandalwood', parts: 2 }, { oil: 'Vetiver', parts: 1 }, { oil: 'Vanilla', parts: 1 },
+  ] },
+  { id: 'greenhouse', icon: '🌿', name: 'Greenhouse', expect: 'Crushed green plants, humidity, fresh air', parts: [
+    { oil: 'Bamboo', parts: 3 }, { oil: 'Beach Sage', parts: 2 }, { oil: 'Eucalyptus', parts: 1 }, { oil: 'Bergamot Breeze', parts: 1 },
+  ] },
+  { id: 'rosewood', icon: '🌹', name: 'Rosewood', expect: 'Sophisticated woody rose, much less "grandma rose"', parts: [
+    { oil: 'Sandalwood', parts: 3 }, { oil: 'Rose', parts: 2 }, { oil: 'Creamy Woods & Sweet Musk', parts: 1 }, { oil: 'Bergamot Breeze', parts: 1 },
+  ] },
+  { id: 'pumpkin-but-grown', icon: '🎃', name: 'Pumpkin, But Grown', expect: 'Pumpkin warmth without becoming a sugary PSL', parts: [
+    { oil: 'Pumpkin', parts: 3 }, { oil: 'Cedar', parts: 2 }, { oil: 'Vanilla', parts: 1 }, { oil: 'Harvest Spice', parts: 1 }, { oil: 'Vetiver', parts: 1 },
+  ] },
+  { id: 'winter-forest', icon: '❄️', name: 'Winter Forest', expect: 'Cold pine forest with a warm woody base', parts: [
+    { oil: 'Forest Pine', parts: 4 }, { oil: 'Eucalyptus', parts: 2 }, { oil: 'Cedar', parts: 1 }, { oil: 'Palo Santo', parts: 1 },
+  ] },
+  { id: 'clean-boy', icon: '🧺', name: 'Clean Boy™', expect: "Clean laundry + expensive men's skin scent", parts: [
+    { oil: 'Fresh Sheets', parts: 4 }, { oil: 'Bergamot Breeze', parts: 2 }, { oil: 'Creamy Woods & Sweet Musk', parts: 2 }, { oil: 'Sandalwood', parts: 1 },
+  ] },
+  { id: 'velvet-night', icon: '🌌', name: 'Velvet Night', expect: 'Dark, smooth, warm, sexy woody amber', parts: [
+    { oil: 'Velvet Woods', parts: 3 }, { oil: 'Amberfire Wood', parts: 2 }, { oil: 'Creamy Woods & Sweet Musk', parts: 2 }, { oil: 'Vanilla', parts: 1 },
+  ] },
+  { id: 'spiced-orange', icon: '🍊', name: 'Spiced Orange', expect: 'Orange peel, spice and warm wood', parts: [
+    { oil: 'Sweet Orange', parts: 4 }, { oil: 'Cinnamon', parts: 2 }, { oil: 'Vanilla', parts: 2 }, { oil: 'Cedar', parts: 1 },
+  ] },
+  { id: 'earth', icon: '🌾', name: 'Earth', expect: 'Dry soil, roots, dead leaves and wood—intentionally earthy', parts: [
+    { oil: 'Vetiver', parts: 3 }, { oil: 'Cedar', parts: 2 }, { oil: 'Fall Leaf', parts: 2 }, { oil: 'Palo Santo', parts: 1 },
+  ] },
+  { id: 'lavender-smoke', icon: '💜', name: 'Lavender Smoke', expect: 'Herbal lavender softened by creamy smoky wood', parts: [
+    { oil: 'Lavender', parts: 3 }, { oil: 'Palo Santo', parts: 2 }, { oil: 'Sandalwood', parts: 2 }, { oil: 'Vanilla', parts: 1 },
+  ] },
+  { id: 'beach-house', icon: '🏖️', name: 'Beach House', expect: 'Clean coastal air rather than sunscreen/tropical beach', parts: [
+    { oil: 'Blossom Water', parts: 4 }, { oil: 'Beach Sage', parts: 3 }, { oil: 'Fresh Sheets', parts: 2 }, { oil: 'Bergamot Breeze', parts: 1 },
+  ] },
+  { id: 'harvest-kitchen', icon: '🍁', name: 'Harvest Kitchen', expect: 'Your unapologetically cozy gourmand fall candle', parts: [
+    { oil: 'Apple Cedar', parts: 3 }, { oil: 'Pumpkin', parts: 2 }, { oil: 'Vanilla', parts: 1 }, { oil: 'Cinnamon', parts: 1 }, { oil: 'Harvest Spice', parts: 1 },
+  ] },
+  { id: 'strange-woods', icon: '🌲', name: 'Strange Woods', expect: 'Foresty at first, then this unexpected dark floral underneath', parts: [
+    { oil: 'Forest Pine', parts: 3 }, { oil: 'Velvet Woods', parts: 2 }, { oil: 'Rose', parts: 1 }, { oil: 'Vetiver', parts: 1 },
+  ] },
+];

@@ -357,6 +357,29 @@ main { padding-top: 26px; }
 
 .card-delete-btn { position: absolute; top: 12px; right: 12px; }
 
+.card h3 .name-edit-btn {
+  font-size: 0.78rem;
+  opacity: 0.45;
+  vertical-align: middle;
+}
+.card h3 .name-edit-btn:hover { opacity: 1; color: var(--sage); background: color-mix(in srgb, var(--sage) 14%, transparent); }
+
+.name-edit-row { display: flex; align-items: center; gap: 5px; }
+.name-edit-row .name-edit-input {
+  flex: 1;
+  font: inherit;
+  font-family: 'EB Garamond', serif;
+  font-weight: 700;
+  font-size: 1.13rem;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--sage);
+  background: var(--bg);
+  color: var(--text);
+}
+.name-edit-row .name-edit-input:focus { outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--sage) 18%, transparent); }
+.name-save-btn:hover { color: var(--sage); background: color-mix(in srgb, var(--sage) 14%, transparent); }
+
 /* ---------- Badges / pills ---------- */
 
 .status-badge {

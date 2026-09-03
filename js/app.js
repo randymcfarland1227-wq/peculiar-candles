@@ -15,6 +15,7 @@ const state = {
   blendMode: 'single',
   selectedRecipeId: '',
   openRecipeGroup: '',
+  editingCandleId: '',
   wickAddType: 'cotton',
   oilRows: [{ oilId: '', amt: '' }],
   oilNoteRows: [{ text: '', family: 'woody' }],
@@ -663,11 +664,20 @@ function logCardHTML(c) {
   const wtype = WICK_TYPES.find(t => t.id === c.wickType);
   const intensity = INTENSITY_LEVELS.find(l => l.id === c.intensity);
   const allNotes = (c.oils || []).flatMap(o => o.notes || []);
+  const editing = state.editingCandleId === c.id;
   return `
     <div class="card" style="--accent:var(--c-${c.status})">
       <div class="card-top">
-        <div>
-          <h3>${escapeHtml(c.name)}</h3>
+        <div style="flex:1">
+          ${editing ? `
+            <div class="name-edit-row">
+              <input type="text" class="name-edit-input" data-id="${c.id}" value="${escapeHtml(c.name)}">
+              <button class="icon-btn name-save-btn" data-id="${c.id}" title="Save">✓</button>
+              <button class="icon-btn name-cancel-btn" title="Cancel">✕</button>
+            </div>
+          ` : `
+            <h3>${escapeHtml(c.name)} <button class="icon-btn name-edit-btn" data-id="${c.id}" title="Rename">✎</button></h3>
+          `}
           <div class="sub">${escapeHtml(c.jarName)} · ${c.jarSizeOz} oz · ${c.dateMade}${c.recipeName ? ` · ${c.recipeIcon} ${escapeHtml(c.recipeName)} recipe` : ''}</div>
         </div>
         <select class="mini-select candle-status-select" data-id="${c.id}" style="--badge:var(--c-${c.status})">
@@ -744,6 +754,39 @@ function renderLog() {
       renderLog();
       renderLogFilterChips();
       renderDashboard();
+    });
+  });
+
+  grid.querySelectorAll('.name-edit-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.editingCandleId = btn.dataset.id;
+      renderLog();
+      const input = grid.querySelector('.name-edit-input');
+      if (input) { input.focus(); input.select(); }
+    });
+  });
+  grid.querySelectorAll('.name-cancel-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.editingCandleId = '';
+      renderLog();
+    });
+  });
+  function saveCandleName(id, container) {
+    const input = container.querySelector('.name-edit-input');
+    const name = input.value.trim();
+    if (!name) { input.focus(); return; }
+    const candle = state.candles.find(c => c.id === id);
+    if (candle) { candle.name = name; saveCandles(); }
+    state.editingCandleId = '';
+    renderLog();
+  }
+  grid.querySelectorAll('.name-save-btn').forEach(btn => {
+    btn.addEventListener('click', () => saveCandleName(btn.dataset.id, grid));
+  });
+  grid.querySelectorAll('.name-edit-input').forEach(input => {
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') saveCandleName(input.dataset.id, grid);
+      if (e.key === 'Escape') { state.editingCandleId = ''; renderLog(); }
     });
   });
 }

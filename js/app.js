@@ -97,17 +97,19 @@ function renderDashboard() {
 function jarStatusMeta(id) { return JAR_STATUSES.find(s => s.id === id) || JAR_STATUSES[0]; }
 
 function jarCardHTML(j) {
+  const sizeLabel = j.sizeOz ? `${j.sizeOz} oz${j.sizeConfirmed === 'Estimated' ? ' (est.)' : ''}` : '';
   return `
     <div class="card${j.status === 'retired' ? ' dim' : ''}" style="--accent:var(--c-${j.status})">
       <div class="card-top">
         <div>
           <h3>${escapeHtml(j.name)}</h3>
-          <div class="sub">${j.sizeOz ? j.sizeOz + ' oz capacity' : ''}${j.source ? ' · ' + escapeHtml(j.source) : ''}</div>
+          <div class="sub">${sizeLabel}${j.source ? ' · ' + escapeHtml(j.source) : ''}</div>
         </div>
         <select class="mini-select jar-status-select" data-id="${j.id}" style="--badge:var(--c-${j.status})">
           ${JAR_STATUSES.map(s => `<option value="${s.id}"${s.id === j.status ? ' selected' : ''}>${s.label}</option>`).join('')}
         </select>
       </div>
+      ${j.lid ? `<div class="meta"><span><b>Lid —</b> ${escapeHtml(j.lid)}</span></div>` : ''}
       ${j.notes ? `<p class="story">${escapeHtml(j.notes)}</p>` : ''}
       <button class="icon-btn card-delete-btn jar-delete-btn" data-id="${j.id}" title="Delete jar">✕</button>
     </div>
@@ -167,14 +169,16 @@ function addJar() {
   const status = document.getElementById('jarStatus');
   const name = document.getElementById('jName').value.trim();
   const sizeOz = parseFloat(document.getElementById('jSize').value);
+  const sizeConfirmed = document.getElementById('jConfirmed').value;
+  const lid = document.getElementById('jLid').value.trim();
   const source = document.getElementById('jSource').value;
   const notes = document.getElementById('jNotes').value.trim();
   status.classList.remove('error');
   if (!name || !sizeOz || sizeOz <= 0) { status.classList.add('error'); status.textContent = 'Give it a name and a capacity in oz.'; return; }
 
-  state.jars.push({ id: uid('jar'), name, sizeOz, source, notes, status: 'available', dateAdded: todayStr() });
+  state.jars.push({ id: uid('jar'), name, sizeOz, sizeConfirmed, lid, source, notes, status: 'available', dateAdded: todayStr() });
   saveJars();
-  ['jName', 'jSize', 'jNotes'].forEach(id => { document.getElementById(id).value = ''; });
+  ['jName', 'jSize', 'jLid', 'jNotes'].forEach(id => { document.getElementById(id).value = ''; });
   status.textContent = 'Added.';
   setTimeout(() => { status.textContent = ''; }, 1500);
   renderJarFilterChips();
@@ -723,10 +727,11 @@ document.getElementById('todayLabel').textContent = new Date().toLocaleDateStrin
 // ---------------------------------------------------------------------
 // Init
 // ---------------------------------------------------------------------
-state.jars = localGet('peculiarCandles.jars', []);
+state.jars = localGet('peculiarCandles.jars', SEED_JARS.map(j => ({ ...j, dateAdded: todayStr() })));
 state.oils = localGet('peculiarCandles.oils', SEED_OILS.map(o => ({ ...o, dateAdded: todayStr() })));
 state.wicks = localGet('peculiarCandles.wicks', []);
 state.candles = localGet('peculiarCandles.candles', []);
+if (!localStorage.getItem('peculiarCandles.jars')) saveJars();
 if (!localStorage.getItem('peculiarCandles.oils')) saveOils();
 
 document.getElementById('jSource').innerHTML = JAR_SOURCES.map(s => `<option>${escapeHtml(s)}</option>`).join('');

@@ -136,6 +136,19 @@
           <input type="number" id="jSize" min="0" step="0.5" placeholder="e.g. 8">
         </div>
         <div class="field">
+          <label>Capacity is</label>
+          <select id="jConfirmed">
+            <option value="Confirmed">Confirmed</option>
+            <option value="Estimated" selected>Estimated</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Lid? <span class="optional">optional</span></label>
+          <input type="text" id="jLid" placeholder="e.g. Yes, No, Yes – cork">
+        </div>
+        <div class="field">
           <label>Source</label>
           <select id="jSource"></select>
         </div>

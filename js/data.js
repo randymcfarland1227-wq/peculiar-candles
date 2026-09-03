@@ -246,3 +246,28 @@ const RECIPES = [
     { oil: 'Forest Pine', parts: 3 }, { oil: 'Velvet Woods', parts: 2 }, { oil: 'Rose', parts: 1 }, { oil: 'Vetiver', parts: 1 },
   ] },
 ];
+
+// Starting jar/vessel inventory — same loads-into-localStorage-once pattern as
+// SEED_OILS. A row with Qty > 1 in the original inventory list becomes one
+// entry per physical jar here (each jar tracks its own status independently),
+// with a "(1 of 2)" style suffix added to the name so duplicates stay
+// distinguishable on the Jars tab. `sizeConfirmed` is 'Confirmed' or
+// 'Estimated', matching the source list.
+const SEED_JARS = [
+  { id: 'jar-cork-lid', name: 'Jar w/ cork lid', sizeOz: 20, lid: 'Yes – cork', sizeConfirmed: 'Estimated' },
+  { id: 'jar-pink-translucent', name: 'Pink translucent jar', sizeOz: 20, lid: 'No', sizeConfirmed: 'Estimated' },
+  { id: 'jar-ball-mason-lid', name: 'Ball Drinking Mason Jar', sizeOz: 16, lid: 'Yes', sizeConfirmed: 'Confirmed' },
+  { id: 'jar-ball-mason-nolid-1', name: 'Ball Drinking Mason Jar (1 of 2)', sizeOz: 16, lid: 'No', sizeConfirmed: 'Confirmed' },
+  { id: 'jar-ball-mason-nolid-2', name: 'Ball Drinking Mason Jar (2 of 2)', sizeOz: 16, lid: 'No', sizeConfirmed: 'Confirmed' },
+  { id: 'jar-pink-mini-ceramic', name: 'Pink mini ceramic', sizeOz: 1.5, lid: 'Unknown', sizeConfirmed: 'Confirmed' },
+  { id: 'jar-large-brown', name: 'Large brown jar', sizeOz: 20, lid: 'Yes', sizeConfirmed: 'Estimated' },
+  { id: 'jar-red', name: 'Red jar', sizeOz: 2.3, lid: 'Yes', sizeConfirmed: 'Confirmed' },
+  { id: 'jar-panda-ceramic', name: 'Panda ceramic', sizeOz: 9.0, lid: 'Unknown', sizeConfirmed: 'Estimated' },
+  { id: 'jar-ball', name: 'Ball jar', sizeOz: 16, lid: 'Yes', sizeConfirmed: 'Confirmed' },
+  { id: 'jar-no-brand', name: 'Jar (No brand)', sizeOz: 10, lid: 'No', sizeConfirmed: 'Estimated' },
+  { id: 'jar-square-1', name: 'Square jar (1 of 2)', sizeOz: 20, lid: 'Yes', sizeConfirmed: 'Estimated' },
+  { id: 'jar-square-2', name: 'Square jar (2 of 2)', sizeOz: 20, lid: 'Yes', sizeConfirmed: 'Estimated' },
+  { id: 'jar-jardin-wide', name: 'Jardin wide jar', sizeOz: 12, lid: 'No', sizeConfirmed: 'Estimated' },
+  { id: 'jar-jam', name: 'Jam Jar', sizeOz: 10, lid: 'No', sizeConfirmed: 'Estimated' },
+  { id: 'jar-michaels', name: 'Michaels jar', sizeOz: 10, lid: 'Looks like w/ lid', sizeConfirmed: 'Confirmed' },
+].map(j => ({ ...j, source: '', notes: '', status: 'available' }));

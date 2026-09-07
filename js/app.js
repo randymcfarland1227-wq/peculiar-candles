@@ -61,7 +61,6 @@ function notifyWorkroom() {
 }
 function syncWorkroomFromStar() {
   notifyWorkroom();
-  if (window.opener && !window.opener.closed) return;
   const encoded = btoa(encodeURIComponent(JSON.stringify(candleWorkroomSnapshot())));
   window.open(`${WORKROOM_ORIGIN}/#sync=${encoded}`, 'randys-work-room');
 }

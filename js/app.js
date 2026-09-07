@@ -27,10 +27,38 @@ function escapeHtml(s) { return String(s || '').replace(/&/g, '&amp;').replace(/
 
 function localGet(key, fallback) { try { return JSON.parse(localStorage.getItem(key)) || fallback; } catch { return fallback; } }
 function localSet(key, value) { localStorage.setItem(key, JSON.stringify(value)); }
-function saveJars() { localSet('peculiarCandles.jars', state.jars); }
+const WORKROOM_ORIGIN = 'https://randys-frontier.randymcfarland1227.chatgpt.site';
+function touchUpdatedAt() { localStorage.setItem('peculiarCandles.updatedAt', new Date().toISOString()); }
+function saveJars() { localSet('peculiarCandles.jars', state.jars); touchUpdatedAt(); notifyWorkroom(); }
 function saveOils() { localSet('peculiarCandles.oils', state.oils); }
 function saveWicks() { localSet('peculiarCandles.wicks', state.wicks); }
-function saveCandles() { localSet('peculiarCandles.candles', state.candles); }
+function saveCandles() { localSet('peculiarCandles.candles', state.candles); touchUpdatedAt(); notifyWorkroom(); }
+function candleWorkroomSnapshot() {
+  const featured = state.candles.filter(candle => candle.featured).map(candle => ({
+    id: String(candle.id),
+    title: candle.name || 'Untitled candle',
+    detail: [candle.jarName, candle.recipeName, candle.notes].filter(Boolean).join(' · ') || 'Candle log entry',
+    meta: [candle.dateMade, (CANDLE_STATUSES.find(status => status.id === candle.status) || {}).label].filter(Boolean).join(' · '),
+  }));
+  return {
+    source: 'candle',
+    metrics: {
+      poured: state.candles.length,
+      jarsRecorded: state.jars.length,
+      jarsAvailable: state.jars.filter(jar => jar.status === 'available').length,
+      activeBatches: state.candles.filter(candle => candle.status === 'curing').length,
+    },
+    featured,
+    refreshedAt: localStorage.getItem('peculiarCandles.updatedAt') || new Date().toISOString(),
+  };
+}
+function notifyWorkroom() {
+  if (window.parent !== window) window.parent.postMessage({ type: 'randys-workroom:snapshot', payload: candleWorkroomSnapshot() }, WORKROOM_ORIGIN);
+}
+window.addEventListener('message', event => {
+  if (event.origin !== WORKROOM_ORIGIN || event.data?.type !== 'randys-workroom:request') return;
+  event.source?.postMessage({ type: 'randys-workroom:snapshot', payload: candleWorkroomSnapshot() }, event.origin);
+});
 
 // ---------------------------------------------------------------------
 // Scent note chips — color per family, with text color computed for
@@ -693,6 +721,7 @@ function logCardHTML(c) {
       ${purpose ? `<span class="purpose-tag ${purpose.id}" style="margin-top:9px;display:inline-block">${purpose.label}</span>` : ''}
       ${c.notes ? `<p class="story">${escapeHtml(c.notes)}</p>` : ''}
       <div class="card-actions">
+        <button class="log-star${c.featured ? ' starred' : ''}" data-log-star="${c.id}" aria-label="${c.featured ? 'Remove' : 'Feature'} ${escapeHtml(c.name)} in Randy's Work Room" title="${c.featured ? 'Featured in Work Room' : 'Feature in Work Room'}">${c.featured ? '★' : '☆'}</button>
         ${jarForCandleIsInUse(c) ? `<button class="btn secondary log-empty-btn" data-id="${c.id}">Empty &amp; return jar</button>` : ''}
         <button class="icon-btn card-delete-btn log-delete-btn" data-id="${c.id}" title="Delete entry">✕</button>
       </div>
@@ -723,6 +752,14 @@ function renderLog() {
   if (state.logFilter !== 'all') items = items.filter(c => c.status === state.logFilter);
   items.sort((a, b) => (b.dateMade || '').localeCompare(a.dateMade || '') || (b.id > a.id ? 1 : -1));
   grid.innerHTML = items.length ? items.map(logCardHTML).join('') : `<div class="empty-state">${state.candles.length ? 'Nothing matches this filter.' : 'No candles poured yet — head to Build.'}</div>`;
+
+  grid.querySelectorAll('[data-log-star]').forEach(btn => btn.addEventListener('click', () => {
+    const candle = state.candles.find(c => c.id === btn.dataset.logStar);
+    if (!candle) return;
+    candle.featured = !candle.featured;
+    saveCandles();
+    renderLog();
+  }));
 
   grid.querySelectorAll('.candle-status-select').forEach(sel => {
     sel.addEventListener('change', () => {
@@ -840,6 +877,7 @@ renderJarFilterChips(); renderJars();
 renderOils();
 renderWicks();
 renderLogFilterChips(); renderLog();
+notifyWorkroom();
 
 document.getElementById('addJarBtn').addEventListener('click', addJar);
 document.getElementById('addOilBtn').addEventListener('click', addOil);

@@ -30,10 +30,11 @@ function localSet(key, value) { localStorage.setItem(key, JSON.stringify(value))
 const WORKROOM_ORIGIN = 'https://randys-frontier.randymcfarland1227.chatgpt.site';
 function touchUpdatedAt() { localStorage.setItem('peculiarCandles.updatedAt', new Date().toISOString()); }
 function saveJars() { localSet('peculiarCandles.jars', state.jars); touchUpdatedAt(); notifyWorkroom(); }
-function saveOils() { localSet('peculiarCandles.oils', state.oils); }
-function saveWicks() { localSet('peculiarCandles.wicks', state.wicks); }
+function saveOils() { localSet('peculiarCandles.oils', state.oils); touchUpdatedAt(); notifyWorkroom(); }
+function saveWicks() { localSet('peculiarCandles.wicks', state.wicks); touchUpdatedAt(); notifyWorkroom(); }
 function saveCandles() { localSet('peculiarCandles.candles', state.candles); touchUpdatedAt(); notifyWorkroom(); }
 function candleWorkroomSnapshot() {
+  const lowOils = state.oils.filter(oil => oil.amountOz <= LOW_STOCK_OIL_OZ).length;
   const featured = state.candles.filter(candle => candle.featured).map(candle => ({
     id: String(candle.id),
     title: candle.name || 'Untitled candle',
@@ -43,17 +44,26 @@ function candleWorkroomSnapshot() {
   return {
     source: 'candle',
     metrics: {
-      poured: state.candles.length,
-      jarsRecorded: state.jars.length,
       jarsAvailable: state.jars.filter(jar => jar.status === 'available').length,
-      activeBatches: state.candles.filter(candle => candle.status === 'curing').length,
+      jarsInUse: state.jars.filter(jar => jar.status === 'inuse').length,
+      oilsLow: lowOils,
+      candlesCuring: state.candles.filter(candle => candle.status === 'curing').length,
+      totalPoured: state.candles.length,
     },
     featured,
     refreshedAt: localStorage.getItem('peculiarCandles.updatedAt') || new Date().toISOString(),
   };
 }
 function notifyWorkroom() {
-  if (window.parent !== window) window.parent.postMessage({ type: 'randys-workroom:snapshot', payload: candleWorkroomSnapshot() }, WORKROOM_ORIGIN);
+  const message = { type: 'randys-workroom:snapshot', payload: candleWorkroomSnapshot() };
+  if (window.opener && !window.opener.closed) window.opener.postMessage(message, WORKROOM_ORIGIN);
+  if (window.parent !== window) window.parent.postMessage(message, WORKROOM_ORIGIN);
+}
+function syncWorkroomFromStar() {
+  notifyWorkroom();
+  if (window.opener && !window.opener.closed) return;
+  const encoded = btoa(encodeURIComponent(JSON.stringify(candleWorkroomSnapshot())));
+  window.open(`${WORKROOM_ORIGIN}/#sync=${encoded}`, 'randys-work-room');
 }
 window.addEventListener('message', event => {
   if (event.origin !== WORKROOM_ORIGIN || event.data?.type !== 'randys-workroom:request') return;
@@ -759,6 +769,7 @@ function renderLog() {
     candle.featured = !candle.featured;
     saveCandles();
     renderLog();
+    syncWorkroomFromStar();
   }));
 
   grid.querySelectorAll('.candle-status-select').forEach(sel => {
